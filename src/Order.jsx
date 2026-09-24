@@ -1,278 +1,187 @@
-import { useState } from "react";
-import emailjs from "@emailjs/browser";
-import "./Order.css";
+import React, { useState } from "react";
+import "./Order.css"; // Créez ce fichier pour les styles spécifiques si besoin
 
-function Order({ onBack }) {
-  const [sending, setSending] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
+export default function Order({ onBack }) {
+  const [formData, setFormData] = useState({
+    fullName: "",
+    phone: "",
+    zone: "Amizour", // Valeur par défaut
+    address: "",
+    storeName: "",
+    productDescription: "",
+    notes: "",
+  });
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-    setSending(true);
-    setSuccess(false);
-    setError("");
-
-    const form = event.currentTarget;
-
-    const templateParams = {
-      nom: form.nom.value,
-      telephone: form.telephone.value,
-      ville: form.ville.value,
-      adresse: form.adresse.value,
-      magasin: form.magasin.value || "Non précisé",
-      produit: form.produit.value,
-      quantite: form.quantite.value,
-      prix: form.prix.value || "Non précisé",
-      instructions:
-        form.instructions.value || "Aucune instruction",
-    };
-
-    try {
-      await emailjs.send(
-        "service_crh9nhh",
-        "template_rtam7vv",
-        templateParams,
-        "gbAHUCI8jA1A3DWbW"
-      );
-
-      setSuccess(true);
-      form.reset();
-    } catch (err) {
-      console.error(err);
-
-      setError(
-        "Une erreur est survenue lors de l'envoi de la commande. Veuillez réessayer."
-      );
-    } finally {
-      setSending(false);
-    }
+  // Tarifs de livraison personnalisés par zone
+  const deliveryFees = {
+    Amizour: 200,
+    "El Kseur": 250,
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Ici, vous ajouterez l'envoi vers un backend, Supabase, Firebase ou une API WhatsApp
+    console.log("Commande envoyée :", formData);
+    setIsSubmitted(true);
+  };
+
+  if (isSubmitted) {
+    return (
+      <div className="order-container success-screen">
+        <div className="success-card">
+          <div className="success-icon">🎉</div>
+          <h2>Commande enregistrée !</h2>
+          <p>
+            Merci <strong>{formData.fullName}</strong>. Votre commande a bien été reçue.
+          </p>
+          <div className="summary-box">
+            <p><strong>Zone :</strong> {formData.zone}</p>
+            <p><strong>Adresse :</strong> {formData.address}</p>
+            <p><strong>Produit :</strong> {formData.productDescription}</p>
+            <p><strong>Frais de livraison estimés :</strong> {deliveryFees[formData.zone]} DZD</p>
+          </div>
+          <p className="confirmation-note">
+            📞 Nous vous contacterons au <strong>{formData.phone}</strong> pour confirmer le prix total.
+          </p>
+          <button className="primary-btn" onClick={onBack}>
+            Retour à l'accueil
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="order-page">
-      <header className="order-header">
-        <button
-          type="button"
-          className="back-btn"
-          onClick={onBack}
-        >
+    <div className="order-container">
+      <div className="order-header">
+        <button className="back-btn" onClick={onBack}>
           ← Retour
         </button>
+        <h2>Passer une commande</h2>
+      </div>
 
-        <div className="order-logo">
-          🚚 LivriDZ
+      <form className="order-form" onSubmit={handleSubmit}>
+        {/* SECTION 1: DÉTAILS DE LA COMMANDE */}
+        <fieldset className="form-section">
+          <legend>🛍️ Que souhaitez-vous commander ?</legend>
+
+          <div className="form-group">
+            <label htmlFor="productDescription">Produit(s) à acheter *</label>
+            <textarea
+              id="productDescription"
+              name="productDescription"
+              rows="3"
+              placeholder="Ex: 1x Pack d'eau, 2kg d'oranges, Pain..."
+              required
+              value={formData.productDescription}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="storeName">Magasin ou magasin préféré (Optionnel)</label>
+            <input
+              type="text"
+              id="storeName"
+              name="storeName"
+              placeholder="Ex: Superette Rahmani, Pharmacie du centre..."
+              value={formData.storeName}
+              onChange={handleChange}
+            />
+          </div>
+        </fieldset>
+
+        {/* SECTION 2: LIVRAISON & COORDONNÉES */}
+        <fieldset className="form-section">
+          <legend>📍 Où devons-nous livrer ?</legend>
+
+          <div className="form-group">
+            <label htmlFor="fullName">Nom et Prénom *</label>
+            <input
+              type="text"
+              id="fullName"
+              name="fullName"
+              placeholder="Votre nom complet"
+              required
+              value={formData.fullName}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="phone">Numéro de téléphone *</label>
+            <input
+              type="tel"
+              id="phone"
+              name="phone"
+              placeholder="06 XX XX XX XX"
+              pattern="[0-9]{10}"
+              required
+              value={formData.phone}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="zone">Zone de livraison *</label>
+            <select
+              id="zone"
+              name="zone"
+              value={formData.zone}
+              onChange={handleChange}
+            >
+              <option value="Amizour">Amizour (200 DZD)</option>
+              <option value="El Kseur">El Kseur (250 DZD)</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="address">Adresse précise de livraison *</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              placeholder="Ex: Quartier AADL, Bloc 4, N° 12"
+              required
+              value={formData.address}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="notes">Remarques pour le livreur (Optionnel)</label>
+            <input
+              type="text"
+              id="notes"
+              name="notes"
+              placeholder="Ex: Appeler avant d'arriver, sonnerie en panne..."
+              value={formData.notes}
+              onChange={handleChange}
+            />
+          </div>
+        </fieldset>
+
+        {/* RÉCAPITULATIF PRIX LIVRAISON */}
+        <div className="price-estimation">
+          <span>Frais de livraison :</span>
+          <strong>{deliveryFees[formData.zone]} DZD</strong>
         </div>
-      </header>
 
-      <main className="order-container">
-        <div className="order-title">
-          <span>🛍️ NOUVELLE COMMANDE</span>
-
-          <h1>Qu'est-ce que vous voulez commander ?</h1>
-
-          <p>
-            Indiquez-nous ce dont vous avez besoin et nous
-            nous occupons de la livraison.
-          </p>
-        </div>
-
-        {success && (
-          <div className="success-message">
-            <div className="success-icon">✓</div>
-
-            <div>
-              <strong>Commande envoyée !</strong>
-
-              <p>
-                Votre commande a bien été reçue.
-                Nous allons vous contacter prochainement.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="error-message">
-            {error}
-          </div>
-        )}
-
-        <form
-          className="order-form"
-          onSubmit={handleSubmit}
-        >
-          <div className="form-section">
-            <h2>📍 Livraison</h2>
-
-            <div className="form-group">
-              <label>Ville *</label>
-
-              <select name="ville" required>
-                <option value="">
-                  Sélectionnez votre ville
-                </option>
-
-                <option value="Amizour">
-                  Amizour
-                </option>
-
-                <option value="El Kseur">
-                  El Kseur
-                </option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>
-                Adresse de livraison *
-              </label>
-
-              <input
-                type="text"
-                name="adresse"
-                placeholder="Ex : Centre-ville Amizour"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="form-section">
-            <h2>🛍️ Produit</h2>
-
-            <div className="form-group">
-              <label>
-                Nom du magasin
-              </label>
-
-              <input
-                type="text"
-                name="magasin"
-                placeholder="Ex : Supermarché X"
-              />
-            </div>
-
-            <div className="form-group">
-              <label>
-                Produit souhaité *
-              </label>
-
-              <input
-                type="text"
-                name="produit"
-                placeholder="Ex : 2 pizzas Margherita"
-                required
-              />
-            </div>
-
-            <div className="form-row">
-              <div className="form-group">
-                <label>Quantité *</label>
-
-                <input
-                  type="number"
-                  name="quantite"
-                  min="1"
-                  defaultValue="1"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label>
-                  Prix approximatif (DA)
-                </label>
-
-                <input
-                  type="number"
-                  name="prix"
-                  min="0"
-                  placeholder="Facultatif"
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label>
-                Photo du produit
-              </label>
-
-              <input
-                type="file"
-                name="photo"
-                accept="image/*"
-              />
-            </div>
-          </div>
-
-          <div className="form-section">
-            <h2>👤 Vos informations</h2>
-
-            <div className="form-group">
-              <label>
-                Nom complet *
-              </label>
-
-              <input
-                type="text"
-                name="nom"
-                placeholder="Votre nom"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>
-                Numéro de téléphone *
-              </label>
-
-              <input
-                type="tel"
-                name="telephone"
-                placeholder="05 XX XX XX XX"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>
-                Instructions supplémentaires
-              </label>
-
-              <textarea
-                name="instructions"
-                placeholder="Une information importante pour la livraison..."
-                rows="4"
-              ></textarea>
-            </div>
-          </div>
-
-          <div className="order-summary">
-            <div>
-              <span>Frais de livraison</span>
-              <strong>À confirmer</strong>
-            </div>
-
-            <div className="total-row">
-              <span>Total</span>
-              <strong>À confirmer</strong>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="submit-order"
-            disabled={sending}
-          >
-            {sending
-              ? "⏳ Envoi en cours..."
-              : "📦 Envoyer la commande"}
-          </button>
-        </form>
-      </main>
+        {/* BOUTON D'ENVOI */}
+        <button type="submit" className="primary-btn submit-btn">
+          🚀 Confirmer la commande
+        </button>
+      </form>
     </div>
   );
 }
-
-export default Order;
