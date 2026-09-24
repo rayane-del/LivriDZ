@@ -1,20 +1,23 @@
-import React, { useState } from "react";
-import "./Order.css"; // Créez ce fichier pour les styles spécifiques si besoin
+import React, { useState, useRef } from "react";
+import emailjs from "@emailjs/browser";
+import "./Order.css";
 
 export default function Order({ onBack }) {
+  const formRef = useRef();
+
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
-    zone: "Amizour", // Valeur par défaut
+    zone: "Amizour",
     address: "",
     storeName: "",
     productDescription: "",
     notes: "",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Tarifs de livraison personnalisés par zone
   const deliveryFees = {
     Amizour: 200,
     "El Kseur": 250,
@@ -30,9 +33,27 @@ export default function Order({ onBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Ici, vous ajouterez l'envoi vers un backend, Supabase, Firebase ou une API WhatsApp
-    console.log("Commande envoyée :", formData);
-    setIsSubmitted(true);
+    setIsSubmitting(true);
+
+    // Remplacez ces identifiants par ceux fournis par EmailJS
+    const SERVICE_ID = "VOTRE_SERVICE_ID";
+    const TEMPLATE_ID = "VOTRE_TEMPLATE_ID";
+    const PUBLIC_KEY = "VOTRE_PUBLIC_KEY";
+
+    emailjs
+      .sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, PUBLIC_KEY)
+      .then(
+        (result) => {
+          console.log("Email envoyé avec succès :", result.text);
+          setIsSubmitting(false);
+          setIsSubmitted(true);
+        },
+        (error) => {
+          console.error("Erreur lors de l'envoi :", error.text);
+          alert("Une erreur s'est produite lors de l'envoi de la commande. Veuillez réespayer.");
+          setIsSubmitting(false);
+        }
+      );
   };
 
   if (isSubmitted) {
@@ -40,18 +61,18 @@ export default function Order({ onBack }) {
       <div className="order-container success-screen">
         <div className="success-card">
           <div className="success-icon">🎉</div>
-          <h2>Commande enregistrée !</h2>
+          <h2>Commande transmise !</h2>
           <p>
-            Merci <strong>{formData.fullName}</strong>. Votre commande a bien été reçue.
+            Merci <strong>{formData.fullName}</strong>. Votre commande a été envoyée par e-mail à notre équipe.
           </p>
           <div className="summary-box">
             <p><strong>Zone :</strong> {formData.zone}</p>
             <p><strong>Adresse :</strong> {formData.address}</p>
-            <p><strong>Produit :</strong> {formData.productDescription}</p>
-            <p><strong>Frais de livraison estimés :</strong> {deliveryFees[formData.zone]} DZD</p>
+            <p><strong>Produits :</strong> {formData.productDescription}</p>
+            <p><strong>Livraison :</strong> {deliveryFees[formData.zone]} DZD</p>
           </div>
           <p className="confirmation-note">
-            📞 Nous vous contacterons au <strong>{formData.phone}</strong> pour confirmer le prix total.
+            📞 Nous vous contacterons rapidement au <strong>{formData.phone}</strong>.
           </p>
           <button className="primary-btn" onClick={onBack}>
             Retour à l'accueil
@@ -70,8 +91,7 @@ export default function Order({ onBack }) {
         <h2>Passer une commande</h2>
       </div>
 
-      <form className="order-form" onSubmit={handleSubmit}>
-        {/* SECTION 1: DÉTAILS DE LA COMMANDE */}
+      <form ref={formRef} className="order-form" onSubmit={handleSubmit}>
         <fieldset className="form-section">
           <legend>🛍️ Que souhaitez-vous commander ?</legend>
 
@@ -81,7 +101,7 @@ export default function Order({ onBack }) {
               id="productDescription"
               name="productDescription"
               rows="3"
-              placeholder="Ex: 1x Pack d'eau, 2kg d'oranges, Pain..."
+              placeholder="Ex: 1x Pack d'eau, 2kg d'oranges..."
               required
               value={formData.productDescription}
               onChange={handleChange}
@@ -89,21 +109,20 @@ export default function Order({ onBack }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="storeName">Magasin ou magasin préféré (Optionnel)</label>
+            <label htmlFor="storeName">Magasin préféré (Optionnel)</label>
             <input
               type="text"
               id="storeName"
               name="storeName"
-              placeholder="Ex: Superette Rahmani, Pharmacie du centre..."
+              placeholder="Ex: Superette Rahmani..."
               value={formData.storeName}
               onChange={handleChange}
             />
           </div>
         </fieldset>
 
-        {/* SECTION 2: LIVRAISON & COORDONNÉES */}
         <fieldset className="form-section">
-          <legend>📍 Où devons-nous livrer ?</legend>
+          <legend>📍 Coordonnées & Livraison</legend>
 
           <div className="form-group">
             <label htmlFor="fullName">Nom et Prénom *</label>
@@ -111,7 +130,6 @@ export default function Order({ onBack }) {
               type="text"
               id="fullName"
               name="fullName"
-              placeholder="Votre nom complet"
               required
               value={formData.fullName}
               onChange={handleChange}
@@ -119,13 +137,12 @@ export default function Order({ onBack }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="phone">Numéro de téléphone *</label>
+            <label htmlFor="phone">Téléphone *</label>
             <input
               type="tel"
               id="phone"
               name="phone"
               placeholder="06 XX XX XX XX"
-              pattern="[0-9]{10}"
               required
               value={formData.phone}
               onChange={handleChange}
@@ -133,25 +150,19 @@ export default function Order({ onBack }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="zone">Zone de livraison *</label>
-            <select
-              id="zone"
-              name="zone"
-              value={formData.zone}
-              onChange={handleChange}
-            >
+            <label htmlFor="zone">Zone *</label>
+            <select id="zone" name="zone" value={formData.zone} onChange={handleChange}>
               <option value="Amizour">Amizour (200 DZD)</option>
               <option value="El Kseur">El Kseur (250 DZD)</option>
             </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="address">Adresse précise de livraison *</label>
+            <label htmlFor="address">Adresse précise *</label>
             <input
               type="text"
               id="address"
               name="address"
-              placeholder="Ex: Quartier AADL, Bloc 4, N° 12"
               required
               value={formData.address}
               onChange={handleChange}
@@ -159,27 +170,24 @@ export default function Order({ onBack }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="notes">Remarques pour le livreur (Optionnel)</label>
+            <label htmlFor="notes">Notes / Instructions (Optionnel)</label>
             <input
               type="text"
               id="notes"
               name="notes"
-              placeholder="Ex: Appeler avant d'arriver, sonnerie en panne..."
               value={formData.notes}
               onChange={handleChange}
             />
           </div>
         </fieldset>
 
-        {/* RÉCAPITULATIF PRIX LIVRAISON */}
         <div className="price-estimation">
           <span>Frais de livraison :</span>
           <strong>{deliveryFees[formData.zone]} DZD</strong>
         </div>
 
-        {/* BOUTON D'ENVOI */}
-        <button type="submit" className="primary-btn submit-btn">
-          🚀 Confirmer la commande
+        <button type="submit" className="primary-btn submit-btn" disabled={isSubmitting}>
+          {isSubmitting ? "Envoi en cours..." : "🚀 Confirmer la commande"}
         </button>
       </form>
     </div>
