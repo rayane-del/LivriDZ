@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import emailjs from "@emailjs/browser";
-import "./Order.css";
+import "./App.css";
 
 export default function Order({ onBack }) {
   const formRef = useRef();
@@ -35,22 +35,22 @@ export default function Order({ onBack }) {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Remplacez ces identifiants par ceux fournis par EmailJS
-    const SERVICE_ID = "VOTRE_SERVICE_ID";
-    const TEMPLATE_ID = "VOTRE_TEMPLATE_ID";
-    const PUBLIC_KEY = "VOTRE_PUBLIC_KEY";
+    // Vos identifiants EmailJS intégrés
+    const SERVICE_ID = "service_crh9nhh";
+    const TEMPLATE_ID = "template_rtam7vv";
+    const PUBLIC_KEY = "gbAHUCI8jA1A3DWbW";
 
     emailjs
       .sendForm(SERVICE_ID, TEMPLATE_ID, formRef.current, PUBLIC_KEY)
       .then(
         (result) => {
-          console.log("Email envoyé avec succès :", result.text);
+          console.log("Commande envoyée avec succès :", result.text);
           setIsSubmitting(false);
           setIsSubmitted(true);
         },
         (error) => {
           console.error("Erreur lors de l'envoi :", error.text);
-          alert("Une erreur s'est produite lors de l'envoi de la commande. Veuillez réespayer.");
+          alert("Une erreur s'est produite lors de l'envoi. Veuillez réessayer.");
           setIsSubmitting(false);
         }
       );
@@ -69,10 +69,10 @@ export default function Order({ onBack }) {
             <p><strong>Zone :</strong> {formData.zone}</p>
             <p><strong>Adresse :</strong> {formData.address}</p>
             <p><strong>Produits :</strong> {formData.productDescription}</p>
-            <p><strong>Livraison :</strong> {deliveryFees[formData.zone]} DZD</p>
+            <p><strong>Frais de livraison :</strong> {deliveryFees[formData.zone]} DZD</p>
           </div>
           <p className="confirmation-note">
-            📞 Nous vous contacterons rapidement au <strong>{formData.phone}</strong>.
+            📞 Nous vous contacterons au <strong>{formData.phone}</strong> pour confirmer la livraison.
           </p>
           <button className="primary-btn" onClick={onBack}>
             Retour à l'accueil
@@ -101,7 +101,7 @@ export default function Order({ onBack }) {
               id="productDescription"
               name="productDescription"
               rows="3"
-              placeholder="Ex: 1x Pack d'eau, 2kg d'oranges..."
+              placeholder="Ex: 1x Pack d'eau, 2kg d'oranges, Pain..."
               required
               value={formData.productDescription}
               onChange={handleChange}
@@ -130,6 +130,7 @@ export default function Order({ onBack }) {
               type="text"
               id="fullName"
               name="fullName"
+              placeholder="Votre nom complet"
               required
               value={formData.fullName}
               onChange={handleChange}
@@ -137,7 +138,7 @@ export default function Order({ onBack }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="phone">Téléphone *</label>
+            <label htmlFor="phone">Numéro de téléphone *</label>
             <input
               type="tel"
               id="phone"
@@ -150,7 +151,7 @@ export default function Order({ onBack }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="zone">Zone *</label>
+            <label htmlFor="zone">Zone de livraison *</label>
             <select id="zone" name="zone" value={formData.zone} onChange={handleChange}>
               <option value="Amizour">Amizour (200 DZD)</option>
               <option value="El Kseur">El Kseur (250 DZD)</option>
@@ -163,6 +164,7 @@ export default function Order({ onBack }) {
               type="text"
               id="address"
               name="address"
+              placeholder="Ex: Quartier AADL, Bloc 4, N° 12"
               required
               value={formData.address}
               onChange={handleChange}
@@ -175,6 +177,7 @@ export default function Order({ onBack }) {
               type="text"
               id="notes"
               name="notes"
+              placeholder="Ex: Appeler avant d'arriver..."
               value={formData.notes}
               onChange={handleChange}
             />
