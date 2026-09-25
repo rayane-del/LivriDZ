@@ -147,17 +147,9 @@ export default function Order({ onBack }) {
               required
               value={formData.phone}
               onChange={handleChange}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="zone">Zone de livraison *</label>
-            <select id="zone" name="zone" value={formData.zone} onChange={handleChange}>
-              <option value="Amizour">Amizour (200 DZD)</option>
-              <option value="El Kseur">El Kseur (250 DZD)</option>
-            </select>
-          </div>
-
+           />
+           </div>
+          
           <div className="form-group">
             <label htmlFor="address">Adresse précise *</label>
             <input
