@@ -21,8 +21,8 @@ function App() {
       {/* NAVBAR (Conservée pour meilleure expérience) */}
       <header className="navbar">
         <div className="logo" onClick={() => setShowOrder(false)} style={{ cursor: "pointer" }}>
-          <span className="logo-icon" role="img" aria-label="Camion">🚚</span>
-          <span>LivriDZ</span>
+          <span className="logo-icon" role="img" aria-label="Camion">🏍️</span>
+          <span>Amizour Drive</span>
         </div>
 
         <nav>
@@ -42,7 +42,7 @@ function App() {
           {/* HERO */}
           <section className="hero" id="accueil">
             <div className="hero-content">
-              <div className="location-badge">📍 Amizour & El Kseur</div>
+              <div className="location-badge">📍 Amizour</div>
 
               <h1>
                 Vous commandez. <br />
@@ -50,7 +50,7 @@ function App() {
               </h1>
 
               <p>
-                Besoin d'un produit à Amizour ou El Kseur ? <br />
+                Besoin d'un produit à Amizour ? <br />
                 Dites-nous ce que vous voulez, on s'occupe du reste.
               </p>
 
@@ -74,7 +74,7 @@ function App() {
                 <span>📍</span>
                 <div>
                   <strong>Zone de livraison</strong>
-                  <small>Amizour • El Kseur</small>
+                  <small>Amizour</small>
                 </div>
               </div>
 
@@ -152,8 +152,8 @@ function App() {
 
       {/* FOOTER */}
       <footer>
-        <div className="footer-logo">🚚 LivriDZ</div>
-        <p>Livraison locale à Amizour et El Kseur</p>
+        <div className="footer-logo">🏍️ Amizour Drive</div>
+        <p>Livraison locale à Amizour</p>
         <span>© 2026 LivriDZ — Tous droits réservés</span>
       </footer>
     </div>

@@ -18,11 +18,11 @@ export default function Order({ onBack }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const deliveryFees = {
-    Amizour: 200,
-    "El Kseur": 250,
+const deliveryFees = {
+    Amizour: 0,
+    "El Kseur":0 ,
   };
-
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -147,9 +147,9 @@ export default function Order({ onBack }) {
               required
               value={formData.phone}
               onChange={handleChange}
-           />
-           </div>
-          
+            />
+          </div>
+
           <div className="form-group">
             <label htmlFor="address">Adresse précise *</label>
             <input
